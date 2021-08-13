@@ -13,7 +13,7 @@ use crate::{
     index::Index,
     mempool::{Histogram, Mempool},
     metrics::Metrics,
-    status::{Balance, HistoryEntry, ScriptHashStatus},
+    status::{Balance, HistoryEntry, OutPointStatus, ScriptHashStatus},
 };
 
 /// Electrum protocol subscriptions' tracker
@@ -73,6 +73,14 @@ impl Tracker {
         let prev_statushash = status.statushash();
         status.sync(&self.index, &self.mempool, daemon, cache)?;
         Ok(prev_statushash != status.statushash())
+    }
+
+    pub fn update_outpoint_status(
+        &self,
+        status: &mut OutPointStatus,
+        daemon: &Daemon,
+    ) -> Result<bool> {
+        status.sync(&self.index, &self.mempool, daemon)
     }
 
     pub fn get_balance(&self, status: &ScriptHashStatus, cache: &Cache) -> Balance {
